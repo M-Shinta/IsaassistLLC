@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="庁舎フロアマップ | 伊佐市役所 窓口案内システム">
+  <title>フロアマップ | 伊佐市役所</title>
+
+  <!-- Google Fonts: Noto Sans JP -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <!-- GSAP CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" defer></script>
+
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="page-floor-map page-layout">
+
+  <!-- スキップリンク（アクセシビリティ） -->
+  <a href="#main-content" class="skip-link">メインコンテンツへスキップ</a>
+
+  <!-- アイドルタイムアウト警告オーバーレイ -->
+  <div class="timeout-overlay" id="timeout-overlay" role="dialog" aria-modal="true" aria-labelledby="timeout-title" hidden>
+    <div class="timeout-dialog">
+      <p class="timeout-title" id="timeout-title">画面が自動でリセットされます</p>
+      <div class="timeout-countdown" aria-live="assertive">
+        <span id="timeout-seconds">5</span><span>秒後にホームに戻ります</span>
+      </div>
+      <div class="timeout-bar-wrap" aria-hidden="true">
+        <div class="timeout-bar" id="timeout-bar"></div>
+      </div>
+      <button
+        type="button"
+        class="btn btn--primary btn--large"
+        id="timeout-cancel-btn"
+        aria-label="タイムアウトをキャンセルして操作を続ける"
+      >続けて操作する</button>
+    </div>
+  </div>
+
+  <!-- ヘッダー -->
+  <header class="site-header" role="banner">
+    <div class="header-inner">
+      <div class="header-logo">
+        <img
+          src="images/logo-placeholder.svg"
+          alt="伊佐市役所"
+          class="header-logo__img"
+          width="48"
+          height="48"
+          onerror="this.style.display='none'"
+        >
+        <div class="header-logo__text">
+          <span class="header-logo__city">伊佐市役所</span>
+          <span class="header-logo__subtitle">窓口案内システム</span>
+        </div>
+      </div>
+
+      <nav class="header-controls" role="navigation" aria-label="言語・表示設定">
+        <button
+          type="button"
+          class="ctrl-btn ctrl-btn--font"
+          id="font-size-toggle"
+          aria-pressed="false"
+          aria-label="文字を大きくする"
+        >
+          <span class="ctrl-btn__icon" aria-hidden="true">A</span>
+          <span class="ctrl-btn__label">文字サイズ</span>
+        </button>
+
+        <div class="lang-switcher" role="group" aria-label="言語切り替え">
+          <button type="button" class="lang-btn lang-btn--active" data-lang="ja" aria-pressed="true" aria-label="日本語に切り替え">日本語</button>
+          <button type="button" class="lang-btn" data-lang="en" aria-pressed="false" aria-label="Switch to English">EN</button>
+          <button type="button" class="lang-btn" data-lang="zh" aria-pressed="false" aria-label="切换到中文">中文</button>
+          <button type="button" class="lang-btn" data-lang="ko" aria-pressed="false" aria-label="한국어로 전환">한국어</button>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ページヘッダー -->
+  <div class="page-header" role="navigation" aria-label="ページナビゲーション">
+    <a href="index.html" class="page-header__back" aria-label="ホームに戻る">&#8592;</a>
+    <h1 class="page-header__title">庁舎フロアマップ</h1>
+  </div>
+
+  <!-- メインコンテンツ -->
+  <main id="main-content" class="site-main" role="main">
+
+    <!-- フロア切り替えタブ -->
+    <nav class="floor-tabs" role="tablist" aria-label="フロア選択">
+      <button
+        type="button"
+        role="tab"
+        class="floor-tab floor-tab--active"
+        id="tab-1f"
+        aria-selected="true"
+        aria-controls="panel-1f"
+        data-floor="1f"
+      >1階</button>
+      <button
+        type="button"
+        role="tab"
+        class="floor-tab"
+        id="tab-2f"
+        aria-selected="false"
+        aria-controls="panel-2f"
+        data-floor="2f"
+      >2階</button>
+      <button
+        type="button"
+        role="tab"
+        class="floor-tab"
+        id="tab-3f"
+        aria-selected="false"
+        aria-controls="panel-3f"
+        data-floor="3f"
+      >3階</button>
+    </nav>
+
+    <!-- 1階パネル -->
+    <section
+      id="panel-1f"
+      role="tabpanel"
+      aria-labelledby="tab-1f"
+      class="floor-panel floor-panel--active"
+    >
+      <h2 class="sr-only">1階 フロア案内</h2>
+
+      <!-- SVGフロアマップ（1階） -->
+      <div class="floor-map-wrap" aria-label="1階のフロアマップ図">
+        <svg
+          class="floor-map-svg"
+          viewBox="0 0 600 400"
+          role="img"
+          aria-label="1階フロアマップ。市民課・市民生活課・総合案内が配置されています。"
+          focusable="false"
+        >
+          <!-- 建物外枠 -->
+          <rect x="10" y="10" width="580" height="380" rx="8" fill="#f4f6f5" stroke="#1a6b4a" stroke-width="3"/>
+
+          <!-- 廊下 -->
+          <rect x="10" y="185" width="580" height="30" fill="#e8f5ef" opacity="0.6"/>
+          <text x="300" y="205" text-anchor="middle" font-size="12" fill="#1a6b4a" font-family="sans-serif">— 廊下 —</text>
+
+          <!-- 総合案内 -->
+          <rect x="30" y="30" width="160" height="140" rx="6" fill="#1a6b4a" opacity="0.15" stroke="#1a6b4a" stroke-width="2"/>
+          <text x="110" y="95" text-anchor="middle" font-size="16" font-weight="bold" fill="#0f4a32" font-family="sans-serif">総合案内</text>
+          <text x="110" y="118" text-anchor="middle" font-size="13" fill="#1a6b4a" font-family="sans-serif">窓口 0番</text>
+
+          <!-- 市民課 -->
+          <rect x="210" y="30" width="200" height="140" rx="6" fill="#1565a0" opacity="0.12" stroke="#1565a0" stroke-width="2"/>
+          <text x="310" y="88" text-anchor="middle" font-size="16" font-weight="bold" fill="#0d3f6e" font-family="sans-serif">市民課</text>
+          <text x="310" y="110" text-anchor="middle" font-size="13" fill="#1565a0" font-family="sans-serif">窓口 1〜8番</text>
+          <text x="310" y="128" text-anchor="middle" font-size="12" fill="#1565a0" font-family="sans-serif">住民票・戸籍・国保</text>
+          <text x="310" y="146" text-anchor="middle" font-size="12" fill="#1565a0" font-family="sans-serif">マイナンバー</text>
+
+          <!-- 市民生活課 -->
+          <rect x="430" y="30" width="150" height="140" rx="6" fill="#e8a020" opacity="0.15" stroke="#e8a020" stroke-width="2"/>
+          <text x="505" y="88" text-anchor="middle" font-size="16" font-weight="bold" fill="#a06010" font-family="sans-serif">市民生活課</text>
+          <text x="505" y="110" text-anchor="middle" font-size="13" fill="#a06010" font-family="sans-serif">窓口 9〜10番</text>
+          <text x="505" y="128" text-anchor="middle" font-size="12" fill="#a06010" font-family="sans-serif">ごみ・環境</text>
+
+          <!-- 待合スペース -->
+          <rect x="30" y="230" width="260" height="140" rx="6" fill="#f0f4f8" stroke="#cbd5e0" stroke-width="2" stroke-dasharray="6,3"/>
+          <text x="160" y="308" text-anchor="middle" font-size="16" font-weight="bold" fill="#4a5568" font-family="sans-serif">待合スペース</text>
+          <text x="160" y="330" text-anchor="middle" font-size="12" fill="#718096" font-family="sans-serif">番号札発行機あり</text>
+
+          <!-- トイレ -->
+          <rect x="310" y="230" width="130" height="60" rx="6" fill="#e3f0fb" stroke="#1565a0" stroke-width="2"/>
+          <text x="375" y="268" text-anchor="middle" font-size="14" font-weight="bold" fill="#1565a0" font-family="sans-serif">🚻 トイレ</text>
+
+          <!-- エレベーター -->
+          <rect x="460" y="230" width="120" height="60" rx="6" fill="#fef8ec" stroke="#e8a020" stroke-width="2"/>
+          <text x="520" y="268" text-anchor="middle" font-size="14" font-weight="bold" fill="#a06010" font-family="sans-serif">🛗 EV</text>
+
+          <!-- 入口 -->
+          <rect x="230" y="355" width="140" height="35" rx="4" fill="#1a6b4a"/>
+          <text x="300" y="378" text-anchor="middle" font-size="15" font-weight="bold" fill="#ffffff" font-family="sans-serif">▲ 正面入口</text>
+        </svg>
+      </div>
+
+      <!-- 窓口一覧（1階） -->
+      <section class="floor-window-list" aria-labelledby="window-list-1f">
+        <h2 class="floor-window-list__heading" id="window-list-1f">1階 窓口一覧</h2>
+        <ul class="window-list" role="list">
+          <li class="window-item" role="listitem">
+            <span class="window-item__number" aria-label="窓口0番">0</span>
+            <div class="window-item__info">
+              <strong class="window-item__name">総合案内</strong>
+              <p class="window-item__desc">ご不明な点はまずこちらへ</p>
+            </div>
+          </li>
+          <li class="window-item" role="listitem">
+            <span class="window-item__number" aria-label="窓口1〜4番">1〜4</span>
+            <div class="window-item__info">
+              <strong class="window-item__name">市民課（住民票・戸籍）</strong>
+              <p class="window-item__desc">住民票の写し、転入・転出届、戸籍謄本・抄本</p>
+            </div>
+          </li>
+          <li class="window-item" role="listitem">
+            <span class="window-item__number" aria-label="窓口5番">5</span>
+            <div class="window-item__info">
+              <strong class="window-item__name">市民課（印鑑登録）</strong>
+              <p class="window-item__desc">印鑑登録・印鑑証明書の発行</p>
+            </div>
+          </li>
+          <li class="window-item" role="listitem">
+            <span class="window-item__number" aria-label="窓口6番">6</span>
+            <div class="window-item__info">
+              <strong class="window-item__name">市民課（マイナンバー専用）</strong>
+              <p class="window-item__desc">マイナンバーカードの申請・受け取り</p>
+            </div>
+          </li>
+          <li class="window-item" role="listitem">
+            <span class="window-item__number" aria-label="窓口7〜8番">7〜8</span>
+            <div class="window-item__info">
+              <strong class="window-item__name">市民課（国民健康保険）</strong>
+              <p class="window-item__desc">国保の加入・脱退・保険証の手続き</p>
+            </div>
+          </li>
+          <li class="window-item" role="listitem">
+            <span class="window-item__number" aria-label="窓口9〜10番">9〜10</span>
+            <div class="window-item__info">
+              <strong class="window-item__name">市民生活課</strong>
+              <p class="window-item__desc">ごみの収集・分別、環境に関する手続き</p>
+            </div>
+          </li>
+        </ul>
+      </section>
+    </section>
+
+    <!-- 2階パネル -->
+    <section
+      id="panel-2f"
+      role="tabpanel"
+      aria-labelledby="tab-2f"
+      class="floor-panel"
+      hidden
+    >
+      <h2 class="sr-only">2階 フロア案内</h2>
+
+      <div class="floor-map-wrap" aria-label="2階のフロアマップ図">
+        <svg
+          class="floor-map-svg"
+          viewBox="0 0 600 400"
+          role="img"
+          aria-label="2階フロアマップ。税務課・こども未来課・高齢者福祉課・福祉課が配置されています。"
+          focusable="false"
+        >
+          <!-- 建物外枠 -->
+          <rect x="10" y="10" width="580" height="380" rx="8" fill="#f4f6f5" stroke="#1a6b4a" stroke-width="3"/>
+
+          <!-- 廊下 -->
+          <rect x="10" y="185" width="580" height="30" fill="#e8f5ef" opacity="0.6"/>
+          <text x="300" y="205" text-anchor="middle" font-size="12" fill="#1a6b4a" font-family="sans-serif">— 廊下 —</text>
+
+          <!-- 税務課 -->
+          <rect x="30" y="30" width="180" height="140" rx="6" fill="#1565a0" opacity="0.12" stroke="#1565a0" stroke-width="2"/>
+          <text x="120" y="88" text-anchor="middle" font-size="16" font-weight="bold" fill="#0d3f6e" font-family="sans-serif">税務課</text>
+          <text x="120" y="110" text-anchor="middle" font-size="13" fill="#1565a0" font-family="sans-serif">窓口 11〜13番</text>
+          <text x="120" y="128" text-anchor="middle" font-size="12" fill="#1565a0" font-family="sans-serif">固定資産税・所得証明</text>
+
+          <!-- こども未来課 -->
+          <rect x="230" y="30" width="170" height="140" rx="6" fill="#e8a020" opacity="0.15" stroke="#e8a020" stroke-width="2"/>
+          <text x="315" y="88" text-anchor="middle" font-size="15" font-weight="bold" fill="#a06010" font-family="sans-serif">こども未来課</text>
+          <text x="315" y="110" text-anchor="middle" font-size="13" fill="#a06010" font-family="sans-serif">窓口 14〜15番</text>
+          <text x="315" y="128" text-anchor="middle" font-size="12" fill="#a06010" font-family="sans-serif">保育所・児童手当</text>
+
+          <!-- 高齢者福祉課 -->
+          <rect x="420" y="30" width="160" height="140" rx="6" fill="#1a6b4a" opacity="0.12" stroke="#1a6b4a" stroke-width="2"/>
+          <text x="500" y="81" text-anchor="middle" font-size="14" font-weight="bold" fill="#0f4a32" font-family="sans-serif">高齢者福祉課</text>
+          <text x="500" y="103" text-anchor="middle" font-size="13" fill="#1a6b4a" font-family="sans-serif">窓口 16〜17番</text>
+          <text x="500" y="121" text-anchor="middle" font-size="12" fill="#1a6b4a" font-family="sans-serif">介護保険・認定</text>
+
+          <!-- 福祉課 -->
+          <rect x="30" y="230" width="200" height="140" rx="6" fill="#1a6b4a" opacity="0.10" stroke="#1a6b4a" stroke-width="2"/>
+          <text x="130" y="308" text-anchor="middle" font-size="16" font-weight="bold" fill="#0f4a32" font-family="sans-serif">福祉課</text>
+          <text x="130" y="330" text-anchor="middle" font-size="13" fill="#1a6b4a" font-family="sans-serif">窓口 18〜19番</text>
+
+          <!-- トイレ -->
+          <rect x="450" y="230" width="130" height="60" rx="6" fill="#e3f0fb" stroke="#1565a0" stroke-width="2"/>
+          <text x="515" y="268" text-anchor="middle" font-size="14" font-weight="bold" fill="#1565a0" font-family="sans-serif">🚻 トイレ</text>
+
+          <!-- エレベーター -->
+          <rect x="450" y="305" width="130" height="55" rx="6" fill="#fef8ec" stroke="#e8a020" stroke-width="2"/>
+          <text x="515" y="337" text-anchor="middle" font-size="14" font-weight="bold" fill="#a06010" font-family="sans-serif">🛗 EV</text>
+        </svg>
+      </div>
+
+      <!-- 窓口一覧（2階） -->
+      <section class="floor-window-list" aria-labelledby="window-list-2f">
+        <h2 class="floor-window-list__heading" id="window-list-2f">2階 窓口一覧</h2>
+        <ul class="window-list" role="list">
+          <li class="window-item" role="listitem">
+            <span class="window-item__number" aria-label="窓口11〜13番">11〜13</span>
+            <div class="window-item__info">
+              <strong class="window-item__name">税務課</strong>
+              <p class="window-item__desc">固定資産税・所得証明・課税証明・軽自動車税</p>
+            </div>
+          </li>
+          <li class="window-item" role="listitem">
+            <span class="window-item__number" aria-label="窓口14〜15番">14〜15</span>
+            <div class="window-item__info">
+              <strong class="window-item__name">こども未来課</strong>
+              <p class="window-item__desc">保育所入所申込、児童手当、子育て支援</p>
+            </div>
+          </li>
+          <li class="window-item" role="listitem">
+            <span class="window-item__number" aria-label="窓口16〜17番">16〜17</span>
+            <div class="window-item__info">
+              <strong class="window-item__name">高齢者福祉課</strong>
+              <p class="window-item__desc">介護保険・要介護認定、高齢者支援サービス</p>
+            </div>
+          </li>
+          <li class="window-item" role="listitem">
+            <span class="window-item__number" aria-label="窓口18〜19番">18〜19</span>
+            <div class="window-item__info">
+              <strong class="window-item__name">福祉課</strong>
+              <p class="window-item__desc">障害者手帳、生活保護、生活困窮者支援</p>
+            </div>
+          </li>
+        </ul>
+      </section>
+    </section>
+
+    <!-- 3階パネル -->
+    <section
+      id="panel-3f"
+      role="tabpanel"
+      aria-labelledby="tab-3f"
+      class="floor-panel"
+      hidden
+    >
+      <h2 class="sr-only">3階 フロア案内</h2>
+
+      <div class="floor-map-wrap" aria-label="3階のフロアマップ図">
+        <svg
+          class="floor-map-svg"
+          viewBox="0 0 600 400"
+          role="img"
+          aria-label="3階フロアマップ。建設課・学校教育課・議場が配置されています。"
+          focusable="false"
+        >
+          <!-- 建物外枠 -->
+          <rect x="10" y="10" width="580" height="380" rx="8" fill="#f4f6f5" stroke="#1a6b4a" stroke-width="3"/>
+
+          <!-- 廊下 -->
+          <rect x="10" y="185" width="580" height="30" fill="#e8f5ef" opacity="0.6"/>
+          <text x="300" y="205" text-anchor="middle" font-size="12" fill="#1a6b4a" font-family="sans-serif">— 廊下 —</text>
+
+          <!-- 建設課 -->
+          <rect x="30" y="30" width="200" height="140" rx="6" fill="#1565a0" opacity="0.12" stroke="#1565a0" stroke-width="2"/>
+          <text x="130" y="88" text-anchor="middle" font-size="16" font-weight="bold" fill="#0d3f6e" font-family="sans-serif">建設課</text>
+          <text x="130" y="110" text-anchor="middle" font-size="13" fill="#1565a0" font-family="sans-serif">窓口 20〜21番</text>
+          <text x="130" y="128" text-anchor="middle" font-size="12" fill="#1565a0" font-family="sans-serif">建築確認・開発許可</text>
+
+          <!-- 学校教育課 -->
+          <rect x="250" y="30" width="200" height="140" rx="6" fill="#e8a020" opacity="0.15" stroke="#e8a020" stroke-width="2"/>
+          <text x="350" y="88" text-anchor="middle" font-size="16" font-weight="bold" fill="#a06010" font-family="sans-serif">学校教育課</text>
+          <text x="350" y="110" text-anchor="middle" font-size="13" fill="#a06010" font-family="sans-serif">窓口 22番</text>
+          <text x="350" y="128" text-anchor="middle" font-size="12" fill="#a06010" font-family="sans-serif">就学・転校手続き</text>
+
+          <!-- 議場 -->
+          <rect x="30" y="230" width="300" height="140" rx="6" fill="#f0f4f8" stroke="#cbd5e0" stroke-width="2"/>
+          <text x="180" y="308" text-anchor="middle" font-size="16" font-weight="bold" fill="#4a5568" font-family="sans-serif">議場（非公開時）</text>
+
+          <!-- トイレ -->
+          <rect x="450" y="230" width="130" height="60" rx="6" fill="#e3f0fb" stroke="#1565a0" stroke-width="2"/>
+          <text x="515" y="268" text-anchor="middle" font-size="14" font-weight="bold" fill="#1565a0" font-family="sans-serif">🚻 トイレ</text>
+
+          <!-- エレベーター -->
+          <rect x="450" y="305" width="130" height="55" rx="6" fill="#fef8ec" stroke="#e8a020" stroke-width="2"/>
+          <text x="515" y="337" text-anchor="middle" font-size="14" font-weight="bold" fill="#a06010" font-family="sans-serif">🛗 EV</text>
+        </svg>
+      </div>
+
+      <!-- 窓口一覧（3階） -->
+      <section class="floor-window-list" aria-labelledby="window-list-3f">
+        <h2 class="floor-window-list__heading" id="window-list-3f">3階 窓口一覧</h2>
+        <ul class="window-list" role="list">
+          <li class="window-item" role="listitem">
+            <span class="window-item__number" aria-label="窓口20〜21番">20〜21</span>
+            <div class="window-item__info">
+              <strong class="window-item__name">建設課</strong>
+              <p class="window-item__desc">建築確認申請、開発許可、道路・河川に関する手続き</p>
+            </div>
+          </li>
+          <li class="window-item" role="listitem">
+            <span class="window-item__number" aria-label="窓口22番">22</span>
+            <div class="window-item__info">
+              <strong class="window-item__name">学校教育課</strong>
+              <p class="window-item__desc">小中学校の就学通知、転校・指定校変更の手続き</p>
+            </div>
+          </li>
+        </ul>
+      </section>
+    </section>
+
+  </main>
+
+  <!-- フッター -->
+  <footer class="site-footer" role="contentinfo">
+    <p class="footer-text">解決しない場合は、窓口スタッフにお気軽にお声がけください。</p>
+    <a href="escalate.html" class="footer-escalate-btn" aria-label="職員を呼ぶ・番号札を発行する">
+      職員を呼ぶ / 番号札を発行する
+    </a>
+  </footer>
+
+  <!-- JavaScript -->
+  <script src="js/i18n.js"></script>
+  <script src="js/faq-data.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/floor-map.js"></script>
+</body>
+</html>
